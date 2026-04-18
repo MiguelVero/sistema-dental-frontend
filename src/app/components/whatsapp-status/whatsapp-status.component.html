@@ -1,0 +1,9 @@
+<div class="fixed bottom-4 right-4 z-50">
+  <div [class]="conectado ? 'bg-green-500' : 'bg-red-500'" 
+       class="text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 cursor-pointer"
+       (click)="actualizarStatus()">
+    <i class="fab fa-whatsapp"></i>
+    <span class="text-sm">WhatsApp {{ conectado ? 'Conectado' : 'Desconectado' }}</span>
+    <div class="w-2 h-2 rounded-full bg-white animate-pulse" *ngIf="conectado"></div>
+  </div>
+</div>

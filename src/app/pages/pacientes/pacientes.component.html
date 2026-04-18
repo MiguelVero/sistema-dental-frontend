@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="header">
+    <h1>👥 Gestión de Pacientes</h1>
+    <button (click)="nuevoPaciente()" class="btn-primary">+ Nuevo Paciente</button>
+  </div>
+  
+  <div class="pacientes-list">
+    <div *ngFor="let paciente of pacientes" class="paciente-card" (click)="editarPaciente(paciente)">
+      <div class="card-header">
+        <h3>{{paciente.nombre}}</h3>
+        <button (click)="$event.stopPropagation(); eliminarPaciente(paciente.id, paciente.nombre)" 
+                class="btn-delete">
+          🗑️
+        </button>
+      </div>
+      <p>📱 {{paciente.telefono}}</p>
+      <p *ngIf="paciente.email">📧 {{paciente.email}}</p>
+      <p *ngIf="paciente.direccion">📍 {{paciente.direccion}}</p>
+    </div>
+  </div>
+</div>
