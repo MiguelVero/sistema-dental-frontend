@@ -1,0 +1,275 @@
+<div class="detalle-container" *ngIf="tratamiento">
+  <!-- Header -->
+  <div class="detalle-header">
+    <div class="header-left">
+      <a routerLink="/tratamientos" class="back-btn">← Volver</a>
+      <div class="tratamiento-header-info">
+        <div class="color-indicator" [style.background]="getCategoriaColor(tratamiento.categoria)"></div>
+        <div>
+          <div class="header-top">
+            <span class="codigo" *ngIf="tratamiento.codigo">{{tratamiento.codigo}}</span>
+            <span class="categoria-badge" [style.background]="getCategoriaColor(tratamiento.categoria)">
+              {{tratamiento.categoria | titlecase}}
+            </span>
+          </div>
+          <h1>{{tratamiento.nombre}}</h1>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button (click)="toggleEdicion()" class="btn-secondary">
+        {{editando ? 'Cancelar' : '✏️ Editar'}}
+      </button>
+      <button *ngIf="editando" (click)="guardarEdicion()" class="btn-primary">
+        💾 Guardar
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats rápidas -->
+  <div class="stats-row" *ngIf="estadisticas">
+    <div class="stat-mini">
+      <span class="stat-icon">📅</span>
+      <div>
+        <p class="stat-value">{{estadisticas.totalCitas}}</p>
+        <p class="stat-label">Total Citas</p>
+      </div>
+    </div>
+    <div class="stat-mini">
+      <span class="stat-icon">✅</span>
+      <div>
+        <p class="stat-value">{{estadisticas.citasCompletadas}}</p>
+        <p class="stat-label">Completadas</p>
+      </div>
+    </div>
+    <div class="stat-mini">
+      <span class="stat-icon">📊</span>
+      <div>
+        <p class="stat-value">{{estadisticas.porcentajeExito}}%</p>
+        <p class="stat-label">Éxito</p>
+      </div>
+    </div>
+    <div class="stat-mini">
+      <span class="stat-icon">💰</span>
+      <div>
+        <p class="stat-value">S/ {{getGanancia()}}</p>
+        <p class="stat-label">Ganancia ({{getMargen()}}%)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button (click)="cambiarTab('info')" [class.active]="tabActivo === 'info'" class="tab-btn">
+      📋 Información
+    </button>
+    <button (click)="cambiarTab('materiales')" [class.active]="tabActivo === 'materiales'" class="tab-btn">
+      🧪 Materiales ({{materiales.length}})
+    </button>
+    <button (click)="cambiarTab('historial')" [class.active]="tabActivo === 'historial'" class="tab-btn">
+      📅 Historial ({{citas.length}})
+    </button>
+  </div>
+
+  <!-- Tab: Información -->
+  <div *ngIf="tabActivo === 'info'" class="tab-content">
+    <div class="info-grid-dos">
+      <!-- Detalles del tratamiento -->
+      <div class="card">
+        <h3>📋 Detalles del Tratamiento</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Nombre</label>
+            <p *ngIf="!editando">{{tratamiento.nombre}}</p>
+            <input *ngIf="editando" [(ngModel)]="tratamientoEdit.nombre" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Código</label>
+            <p *ngIf="!editando">{{tratamiento.codigo || 'Sin código'}}</p>
+            <input *ngIf="editando" [(ngModel)]="tratamientoEdit.codigo" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Categoría</label>
+            <p *ngIf="!editando">{{tratamiento.categoria | titlecase}}</p>
+            <select *ngIf="editando" [(ngModel)]="tratamientoEdit.categoria" class="form-input">
+              <option *ngFor="let cat of categorias" [value]="cat">{{cat | titlecase}}</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Descripción</label>
+            <p *ngIf="!editando">{{tratamiento.descripcion || 'Sin descripción'}}</p>
+            <textarea *ngIf="editando" [(ngModel)]="tratamientoEdit.descripcion" class="form-input" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precios y duración -->
+      <div class="card">
+        <h3>💰 Precios y Duración</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Duración (minutos)</label>
+            <p *ngIf="!editando">{{tratamiento.duracion_minutos}} min</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="tratamientoEdit.duracion_minutos" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Precio de venta</label>
+            <p *ngIf="!editando" class="text-green-600 font-bold">S/ {{tratamiento.precio}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="tratamientoEdit.precio" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Costo de materiales</label>
+            <p *ngIf="!editando">S/ {{tratamiento.costo_materiales}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="tratamientoEdit.costo_materiales" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Ganancia neta</label>
+            <p class="text-green-600 font-bold">S/ {{getGanancia()}} ({{getMargen()}}%)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Materiales -->
+<div *ngIf="tabActivo === 'materiales'" class="tab-content">
+  <div class="card">
+    <h3>🧪 Materiales Necesarios</h3>
+    
+    <!-- Lista de materiales existentes -->
+    <div class="materiales-list" *ngIf="materiales.length > 0">
+      <div *ngFor="let mat of materiales; let i = index" class="material-row">
+        <span class="material-icon">{{mat.producto_id ? '📦' : '📝'}}</span>
+        <div class="material-info">
+          <strong>{{mat.nombre_material}}</strong>
+          <span class="material-detalle">{{mat.cantidad}} {{mat.unidad}}</span>
+          <span *ngIf="mat.producto_id" class="vinculado-badge">🔗 Inventario</span>
+          <span *ngIf="!mat.producto_id" class="no-vinculado-badge">⚠️ Sin vincular</span>
+        </div>
+        <button (click)="eliminarMaterial(i)" class="btn-delete" title="Eliminar">🗑️</button>
+      </div>
+    </div>
+
+    <div *ngIf="materiales.length === 0" class="empty-mini">
+      <p>No hay materiales registrados para este tratamiento</p>
+    </div>
+
+    <!-- Agregar material - MEJORADO -->
+    <div class="agregar-material">
+      <h4>+ Agregar Material</h4>
+      
+      <!-- Toggle: Usar producto existente o crear nuevo -->
+      <div class="toggle-options">
+        <button (click)="usarProductoExistente = true; cargarProductosInventario()" 
+                [class.active]="usarProductoExistente" class="toggle-btn">
+          📦 Vincular con Inventario
+        </button>
+        <button (click)="usarProductoExistente = false" 
+                [class.active]="!usarProductoExistente" class="toggle-btn">
+          📝 Material libre
+        </button>
+      </div>
+
+      <!-- Si vincula con inventario -->
+      <div *ngIf="usarProductoExistente" class="producto-selector">
+        <select [(ngModel)]="selectedProductoId" class="form-input">
+          <option [ngValue]="null">Seleccionar producto del inventario...</option>
+          <option *ngFor="let prod of productosInventario" [ngValue]="prod.id">
+            {{prod.codigo}} - {{prod.nombre}} (Stock: {{prod.stock_actual}})
+          </option>
+        </select>
+        <input [(ngModel)]="nuevoMaterial.cantidad" type="number" 
+               placeholder="Cantidad a usar" class="form-input-small" min="0.1" step="0.1">
+        <button (click)="agregarMaterial()" class="btn-add">Agregar</button>
+      </div>
+
+      <!-- Si es material libre -->
+      <div *ngIf="!usarProductoExistente" class="material-form">
+        <input [(ngModel)]="nuevoMaterial.nombre" placeholder="Nombre del material" class="form-input">
+        <input [(ngModel)]="nuevoMaterial.cantidad" type="number" placeholder="Cantidad" class="form-input-small" min="0.1" step="0.1">
+        <select [(ngModel)]="nuevoMaterial.unidad" class="form-input-small">
+          <option value="unidad">Unidad</option>
+          <option value="ml">ml</option>
+          <option value="gr">gr</option>
+          <option value="par">Par</option>
+          <option value="kit">Kit</option>
+        </select>
+        <button (click)="agregarMaterial()" class="btn-add">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Tab: Historial de Citas -->
+  <div *ngIf="tabActivo === 'historial'" class="tab-content">
+    <div *ngIf="citas.length === 0" class="empty-state">
+      <p class="text-4xl mb-4">📅</p>
+      <h3>Sin historial</h3>
+      <p>No hay citas registradas para este tratamiento</p>
+    </div>
+
+    <div class="citas-list" *ngIf="citas.length > 0">
+      <div *ngFor="let cita of citas" class="cita-card">
+        <div class="cita-header">
+          <div class="cita-paciente">
+            <div class="avatar-mini">{{cita.paciente?.nombre?.charAt(0)}}</div>
+            <div>
+              <strong>{{cita.paciente?.nombre}}</strong>
+              <p class="cita-fecha">{{cita.fecha | date:'dd/MM/yyyy'}} - {{cita.hora | slice:0:5}}</p>
+            </div>
+          </div>
+          <span class="estado-badge" [class]="getEstadoCitaClass(cita.estado)">
+            {{cita.estado | titlecase}}
+          </span>
+        </div>
+
+        <!-- Anotaciones de la cita -->
+        <div class="anotaciones-section">
+          <div class="anotaciones-header" (click)="cargarAnotaciones(cita.id)">
+            <span>📝 Anotaciones clínicas</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          
+          <div class="anotaciones-list">
+            <div *ngFor="let anot of anotaciones" class="anotacion-item">
+              <span class="anotacion-icon">{{getTipoAnotacionIcono(anot.tipo)}}</span>
+              <div class="anotacion-content">
+                <div class="anotacion-header-row">
+                  <span class="tipo-badge" [class]="'tipo-' + anot.tipo">{{anot.tipo | titlecase}}</span>
+                  <span class="anotacion-fecha">{{anot.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+                </div>
+                <p class="anotacion-texto">{{anot.descripcion}}</p>
+              </div>
+            </div>
+            
+            <div *ngIf="anotaciones.length === 0" class="anotacion-empty">
+              <p>No hay anotaciones para esta cita</p>
+            </div>
+          </div>
+
+          <!-- Agregar anotación -->
+          <div class="nueva-anotacion">
+            <select [(ngModel)]="nuevaAnotacion.tipo" class="form-input-small">
+              <option value="diagnostico">Diagnóstico</option>
+              <option value="procedimiento">Procedimiento</option>
+              <option value="observacion">Observación</option>
+              <option value="complicacion">Complicación</option>
+              <option value="seguimiento">Seguimiento</option>
+            </select>
+            <textarea [(ngModel)]="nuevaAnotacion.descripcion" 
+                      placeholder="Describa el procedimiento, diagnóstico u observación..."
+                      class="form-input" rows="2"></textarea>
+            <button (click)="agregarAnotacion(cita.id)" class="btn-primary btn-sm">
+              💾 Guardar Anotación
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!tratamiento" class="loading">
+  <p>Cargando tratamiento...</p>
+</div>

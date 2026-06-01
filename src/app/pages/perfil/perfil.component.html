@@ -1,0 +1,32 @@
+<div class="container" *ngIf="usuario">
+  <h1>👤 Mi Perfil</h1>
+
+  <div class="perfil-card">
+    <div class="avatar-grande">{{usuario.nombre.charAt(0).toUpperCase()}}</div>
+    <h2>{{usuario.nombre}}</h2>
+    <span class="rol-badge">{{usuario.rol | titlecase}}</span>
+
+    <div class="info-campos">
+      <div class="campo">
+        <label>Nombre</label>
+        <p *ngIf="!editando">{{usuario.nombre}}</p>
+        <input *ngIf="editando" [(ngModel)]="perfilEdit.nombre" class="form-input">
+      </div>
+      <div class="campo">
+        <label>Email</label>
+        <p *ngIf="!editando">{{usuario.email}}</p>
+        <input *ngIf="editando" [(ngModel)]="perfilEdit.email" class="form-input">
+      </div>
+      <div class="campo">
+        <label>Último acceso</label>
+        <p>{{usuario.ultimo_acceso | date:'dd/MM/yyyy HH:mm'}}</p>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button *ngIf="!editando" (click)="editando = true" class="btn-primary">✏️ Editar</button>
+      <button *ngIf="editando" (click)="guardarPerfil()" class="btn-primary">💾 Guardar</button>
+      <button *ngIf="editando" (click)="editando = false" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,460 @@
+.detalle-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.detalle-header {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.back-btn {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+.paciente-info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar-grande {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #6b7280;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: #f3f4f6;
+}
+
+.tab-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+  font-size: 1.125rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.info-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.campo p {
+  color: #1f2937;
+  font-size: 0.9375rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Botones */
+.btn-primary, .btn-secondary {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Historial Médico */
+.historial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.historial-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.historial-icon {
+  font-size: 2rem;
+}
+
+.historial-content {
+  flex: 1;
+}
+
+.tipo-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tipo-alergia { background: #fee2e2; color: #991b1b; }
+.tipo-enfermedad { background: #fef3c7; color: #92400e; }
+.tipo-medicamento { background: #dbeafe; color: #1e40af; }
+.tipo-cirugia { background: #e0e7ff; color: #3730a3; }
+.tipo-habito { background: #d1fae5; color: #065f46; }
+.tipo-otro { background: #f3f4f6; color: #374151; }
+
+.estado-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.estado-activo { background: #fef2f2; color: #991b1b; }
+.estado-curado { background: #d1fae5; color: #065f46; }
+.estado-control { background: #fef3c7; color: #92400e; }
+
+.descripcion {
+  color: #1f2937;
+  margin: 0.5rem 0;
+}
+
+/* Odontograma */
+.odontograma-container {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.odontograma-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.color-box {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+
+.odontograma-grid {
+  margin: 2rem 0;
+}
+
+.dientes-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.diente {
+  width: 2.5rem;
+  height: 3rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.diente:hover {
+  transform: scale(1.15);
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.diente-numero {
+  font-size: 0.625rem;
+  font-weight: bold;
+  color: #374151;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* Citas */
+.citas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cita-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.cita-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cita-fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  min-width: 3rem;
+}
+
+.fecha-dia {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.fecha-mes {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+}
+
+.cita-info {
+  flex: 1;
+}
+
+.cita-info h4 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.cita-hora {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Badges */
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+
+.estado-cita {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detalle-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabs {
+    overflow-x: auto;
+  }
+  
+  .diente {
+    width: 1.75rem;
+    height: 2.25rem;
+  }
+  
+  .diente-numero {
+    font-size: 0.5rem;
+  }
+}

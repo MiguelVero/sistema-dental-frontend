@@ -1,0 +1,92 @@
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>💊 Gestión de Tratamientos</h1>
+      <p class="subtitle">{{tratamientos.length}} tratamientos registrados</p>
+    </div>
+    <button (click)="nuevoTratamiento()" class="btn-primary">
+      + Nuevo Tratamiento
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" [(ngModel)]="busqueda" (ngModelChange)="onBusquedaChange()"
+       placeholder="Buscar..." class="search-input">
+      <button (click)="cargarTratamientos()" class="search-button">Buscar</button>
+    </div>
+    
+    <div class="categorias-filter">
+      <button *ngFor="let cat of categorias" 
+              (click)="categoriaFiltro = cat.valor; cargarTratamientos()"
+              [class.active]="categoriaFiltro === cat.valor"
+              class="cat-btn">
+        {{cat.label}}
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="tratamientos-grid">
+    <div *ngFor="let tratamiento of tratamientos" 
+         class="tratamiento-card"
+         [style.borderLeftColor]="getCategoriaColor(tratamiento.categoria)">
+      
+      <div class="card-header">
+      <div class="tratamiento-info">
+        <span class="codigo" *ngIf="tratamiento.codigo">{{tratamiento.codigo}}</span>
+        <h3>{{tratamiento.nombre}}</h3>
+        <span class="categoria-badge" [style.background]="getCategoriaColor(tratamiento.categoria)">
+          {{tratamiento.categoria}}
+        </span>
+      </div>
+      <!-- QUITA ESTA SECCIÓN DUPLICADA: -->
+      <!-- <div class="header-actions">...</div> -->
+      
+      <!-- SOLO DEJA ESTA SECCIÓN DE PRECIO Y ELIMINAR: -->
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="precio" style="margin-right: 0.5rem;">
+          <span class="precio-valor">S/ {{tratamiento.precio}}</span>
+          <span class="precio-label">por sesión</span>
+        </div>
+        <button (click)="$event.stopPropagation(); eliminarTratamiento(tratamiento)" 
+                style="background: none; border: none; font-size: 1.25rem; cursor: pointer; padding: 0.25rem;"
+                title="Eliminar">
+          🗑️
+        </button>
+      </div>
+    </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span>⏱️ {{tratamiento.duracion_minutos}} min</span>
+          <span>📦 Costo: S/ {{tratamiento.costo_materiales}}</span>
+        </div>
+        <p class="descripcion" *ngIf="tratamiento.descripcion">
+          {{tratamiento.descripcion | slice:0:100}}{{tratamiento.descripcion.length > 100 ? '...' : ''}}
+        </p>
+        <div class="materiales" *ngIf="tratamiento.materiales?.length > 0">
+          <span class="material-label">🧪 Materiales:</span>
+          <span *ngFor="let mat of tratamiento.materiales" class="material-item">
+            {{mat.nombre_material}} ({{mat.cantidad}} {{mat.unidad}})
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button [routerLink]="['/tratamientos', tratamiento.id]" class="btn-ver">
+          👁️ Ver detalle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="tratamientos.length === 0" class="empty-state">
+    <p class="text-4xl mb-4">💊</p>
+    <h3>No hay tratamientos</h3>
+    <p>Crea tu primer tratamiento para comenzar</p>
+  </div>
+</div>

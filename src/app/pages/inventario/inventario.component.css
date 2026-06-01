@@ -1,0 +1,40 @@
+.container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+h1 { font-size: 1.875rem; font-weight: bold; color: #1f2937; }
+.subtitle { color: #6b7280; }
+.alertas-badge { color: #dc2626; font-weight: 600; }
+
+.btn-primary { background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer; }
+
+.filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+.search-input { flex: 1; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; min-width: 200px; }
+.filter-select { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+.checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer; }
+
+.productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+
+.producto-card { background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #10b981; overflow: hidden; transition: all 0.3s; }
+.producto-card.stock-bajo { border-left-color: #f59e0b; background: #fffbeb; }
+.producto-card.stock-agotado { border-left-color: #ef4444; background: #fef2f2; }
+
+.card-header { display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+.codigo { font-size: 0.625rem; color: #6b7280; }
+.card-header h3 { margin: 0.25rem 0; font-size: 1rem; }
+.categoria-tag { font-size: 0.625rem; background: #e5e7eb; padding: 0.125rem 0.5rem; border-radius: 9999px; }
+
+.stock-indicator { text-align: center; }
+.stock-badge { font-size: 0.625rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-weight: 600; }
+.stock-normal { background: #d1fae5; color: #065f46; }
+.stock-bajo { background: #fef3c7; color: #92400e; }
+.stock-agotado { background: #fee2e2; color: #991b1b; }
+.stock-number { display: block; font-size: 1.5rem; font-weight: bold; }
+.stock-unit { font-size: 0.625rem; color: #6b7280; }
+
+.card-body { padding: 0.75rem 1rem; }
+.info-row, .precios-row { display: flex; gap: 1rem; font-size: 0.75rem; color: #6b7280; flex-wrap: wrap; margin-bottom: 0.25rem; }
+
+.card-actions { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; background: #f9fafb; border-top: 1px solid #e5e7eb; }
+.btn-entrada, .btn-salida, .btn-detalle { flex: 1; padding: 0.5rem; border: none; border-radius: 0.375rem; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
+.btn-entrada { background: #d1fae5; color: #065f46; }
+.btn-salida { background: #fee2e2; color: #991b1b; }
+.btn-detalle { background: #e0e7ff; color: #3730a3; flex: 0; padding: 0.5rem 0.75rem; }

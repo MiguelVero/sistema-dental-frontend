@@ -1,21 +1,90 @@
 <div class="container">
+  <!-- Header -->
   <div class="header">
-    <h1>👥 Gestión de Pacientes</h1>
-    <button (click)="nuevoPaciente()" class="btn-primary">+ Nuevo Paciente</button>
+    <div>
+      <h1>👥 Gestión de Pacientes</h1>
+      <p class="subtitle">{{totalPacientes}} pacientes registrados</p>
+    </div>
+    <button (click)="nuevoPaciente()" class="btn-primary">
+      + Nuevo Paciente
+    </button>
   </div>
-  
-  <div class="pacientes-list">
-    <div *ngFor="let paciente of pacientes" class="paciente-card" (click)="editarPaciente(paciente)">
+
+  <!-- Barra de búsqueda -->
+  <div class="search-bar">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" [(ngModel)]="busqueda" (ngModelChange)="onBusquedaChange()"
+       placeholder="Buscar..." class="search-input">
+      <button (click)="buscar()" class="search-button">Buscar</button>
+    </div>
+  </div>
+
+  <!-- Grid de pacientes -->
+  <div class="pacientes-grid" *ngIf="pacientes.length > 0">
+    <div *ngFor="let paciente of pacientes" 
+         class="paciente-card"
+         [routerLink]="['/pacientes', paciente.id]">
+      
       <div class="card-header">
-        <h3>{{paciente.nombre}}</h3>
+        <div class="avatar">
+          {{paciente.nombre.charAt(0).toUpperCase()}}
+        </div>
+        <div class="header-info">
+          <h3>{{paciente.nombre}}</h3>
+          <span class="dni" *ngIf="paciente.dni">DNI: {{paciente.dni}}</span>
+        </div>
         <button (click)="$event.stopPropagation(); eliminarPaciente(paciente.id, paciente.nombre)" 
-                class="btn-delete">
+                class="btn-delete" title="Eliminar">
           🗑️
         </button>
       </div>
-      <p>📱 {{paciente.telefono}}</p>
-      <p *ngIf="paciente.email">📧 {{paciente.email}}</p>
-      <p *ngIf="paciente.direccion">📍 {{paciente.direccion}}</p>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">📱</span>
+          <span>{{paciente.telefono}}</span>
+        </div>
+        <div class="info-row" *ngIf="paciente.email">
+          <span class="label">📧</span>
+          <span>{{paciente.email}}</span>
+        </div>
+        <div class="info-row" *ngIf="paciente.fecha_nacimiento">
+          <span *ngIf="paciente.fecha_nacimiento">
+            🎂 {{calcularEdad(paciente.fecha_nacimiento) || 'Edad no disponible'}}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="paciente.citas?.length > 0">
+        <div class="ultima-cita">
+          <span class="label">Última cita:</span>
+          <span>{{paciente.citas[0].fecha | date:'dd/MM/yyyy'}}</span>
+          <span class="tratamiento-badge">{{paciente.citas[0].tratamiento?.nombre}}</span>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="pacientes.length === 0" class="empty-state">
+    <p class="text-4xl mb-4">🔍</p>
+    <h3>No se encontraron pacientes</h3>
+    <p>Intenta con otros términos de búsqueda</p>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="totalPaginas > 1" class="pagination">
+    <button (click)="cambiarPagina(paginaActual - 1)" 
+            [disabled]="paginaActual === 1"
+            class="page-btn">
+      Anterior
+    </button>
+    <span class="page-info">Página {{paginaActual}} de {{totalPaginas}}</span>
+    <button (click)="cambiarPagina(paginaActual + 1)" 
+            [disabled]="paginaActual === totalPaginas"
+            class="page-btn">
+      Siguiente
+    </button>
   </div>
 </div>

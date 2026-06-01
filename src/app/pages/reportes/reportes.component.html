@@ -1,0 +1,88 @@
+<div class="container">
+  <h1>📑 Reportes y Exportaciones</h1>
+  <p class="subtitle">Genera reportes en PDF o Excel</p>
+
+  <div class="formato-selector">
+    <label>Formato:</label>
+    <select [(ngModel)]="formato" class="form-input" style="width: auto;">
+      <option value="pdf">📄 PDF</option>
+      <option value="excel">📊 Excel</option>
+    </select>
+  </div>
+
+  <div class="reportes-grid">
+    <!-- Reporte Diario -->
+    <div class="reporte-card">
+      <div class="card-icon">📈</div>
+      <h3>Reporte Diario</h3>
+      <p>Ingresos y egresos del día</p>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" [(ngModel)]="fecha" class="form-input">
+      </div>
+      <button (click)="descargarReporte('diario')" class="btn-descargar">
+        📥 Descargar {{formato === 'pdf' ? 'PDF' : 'Excel'}}
+      </button>
+    </div>
+
+    <!-- Reporte de Tratamientos -->
+    <div class="reporte-card">
+      <div class="card-icon">💊</div>
+      <h3>Tratamientos por Período</h3>
+      <p>Citas y tratamientos realizados</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Desde</label>
+          <input type="date" [(ngModel)]="desde" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Hasta</label>
+          <input type="date" [(ngModel)]="hasta" class="form-input">
+        </div>
+      </div>
+      <button (click)="descargarReporte('tratamientos')" class="btn-descargar">
+        📥 Descargar {{formato === 'pdf' ? 'PDF' : 'Excel'}}
+      </button>
+    </div>
+
+    <!-- Reporte de Inventario -->
+    <div class="reporte-card">
+      <div class="card-icon">📦</div>
+      <h3>Inventario Consumido</h3>
+      <p>Materiales utilizados y stock bajo</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Desde</label>
+          <input type="date" [(ngModel)]="desde" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Hasta</label>
+          <input type="date" [(ngModel)]="hasta" class="form-input">
+        </div>
+      </div>
+      <button (click)="descargarReporte('inventario')" class="btn-descargar">
+        📥 Descargar {{formato === 'pdf' ? 'PDF' : 'Excel'}}
+      </button>
+    </div>
+
+    <!-- Flujo de Caja -->
+    <div class="reporte-card">
+      <div class="card-icon">💰</div>
+      <h3>Flujo de Caja</h3>
+      <p>Ingresos vs Egresos por día</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Desde</label>
+          <input type="date" [(ngModel)]="desde" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Hasta</label>
+          <input type="date" [(ngModel)]="hasta" class="form-input">
+        </div>
+      </div>
+      <button (click)="descargarReporte('flujo-caja')" class="btn-descargar">
+        📥 Descargar {{formato === 'pdf' ? 'PDF' : 'Excel'}}
+      </button>
+    </div>
+  </div>
+</div>

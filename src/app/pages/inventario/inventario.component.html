@@ -1,0 +1,61 @@
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>📦 Control de Inventario</h1>
+      <p class="subtitle">{{productos.length}} productos | 
+        <span class="alertas-badge" *ngIf="alertas > 0">⚠️ {{alertas}} alertas de stock bajo</span>
+      </p>
+    </div>
+    <button (click)="nuevoProducto()" class="btn-primary">+ Nuevo Producto</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <input type="text" [(ngModel)]="busqueda" (ngModelChange)="onBusquedaChange()" 
+       placeholder="🔍 Buscar producto..." class="search-input">
+    <select [(ngModel)]="categoriaFiltro" (change)="cargarProductos()" class="filter-select">
+      <option value="">Todas las categorías</option>
+      <option *ngFor="let cat of categorias" [value]="cat.id">{{cat.nombre}}</option>
+    </select>
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="soloStockBajo" (change)="cargarProductos()">
+      Solo stock bajo
+    </label>
+  </div>
+
+  <!-- Grid -->
+  <div class="productos-grid">
+    <div *ngFor="let producto of productos" class="producto-card" [class]="getStockClass(producto)">
+      <div class="card-header">
+        <div>
+          <span class="codigo" *ngIf="producto.codigo">{{producto.codigo}}</span>
+          <h3>{{producto.nombre}}</h3>
+          <span class="categoria-tag">{{producto.categoria?.nombre || 'Sin categoría'}}</span>
+        </div>
+        <div class="stock-indicator">
+          <span class="stock-badge" [class]="getStockClass(producto)">{{getStockLabel(producto)}}</span>
+          <span class="stock-number">{{producto.stock_actual}}</span>
+          <span class="stock-unit">{{producto.unidad}}</span>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span>📉 Mín: {{producto.stock_minimo}}</span>
+          <span>📈 Máx: {{producto.stock_maximo || '-'}}</span>
+          <span>🏢 {{producto.proveedor || 'Sin proveedor'}}</span>
+        </div>
+        <div class="precios-row">
+          <span>Compra: S/ {{producto.precio_compra}}</span>
+          <span>Venta: S/ {{producto.precio_venta}}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button (click)="registrarMovimiento(producto, 'entrada')" class="btn-entrada">📥 Entrada</button>
+        <button (click)="registrarMovimiento(producto, 'salida')" class="btn-salida">📤 Salida</button>
+        <button [routerLink]="['/inventario', producto.id]" class="btn-detalle">📋</button>
+      </div>
+    </div>
+  </div>
+</div>

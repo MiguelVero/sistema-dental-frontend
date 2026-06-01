@@ -1,0 +1,382 @@
+<div class="detalle-container" *ngIf="paciente">
+  <!-- Header -->
+  <div class="detalle-header">
+    <div class="header-left">
+      <a routerLink="/pacientes" class="back-btn">← Volver</a>
+      <div class="paciente-info-header">
+        <div class="avatar-grande">
+          {{paciente.nombre.charAt(0).toUpperCase()}}
+        </div>
+        <div>
+          <h1>{{paciente.nombre}}</h1>
+          <p class="dni" *ngIf="paciente.dni">DNI: {{paciente.dni}}</p>
+          <p class="edad" *ngIf="paciente.fecha_nacimiento">
+            {{calcularEdad(paciente.fecha_nacimiento)}} años • 
+            {{paciente.genero === 'M' ? 'Masculino' : paciente.genero === 'F' ? 'Femenino' : ''}}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button (click)="toggleEdicion()" class="btn-secondary">
+        {{editando ? 'Cancelar' : '✏️ Editar'}}
+      </button>
+      <button *ngIf="editando" (click)="guardarEdicion()" class="btn-primary">
+        💾 Guardar
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button (click)="cambiarTab('info')" 
+            [class.active]="tabActivo === 'info'"
+            class="tab-btn">
+      📋 Información
+    </button>
+    <button (click)="cambiarTab('historial')" 
+            [class.active]="tabActivo === 'historial'"
+            class="tab-btn">
+      🏥 Historial Médico
+    </button>
+    <button (click)="cambiarTab('odontograma')" 
+            [class.active]="tabActivo === 'odontograma'"
+            class="tab-btn">
+      🦷 Odontograma
+    </button>
+    <button (click)="cambiarTab('citas')" 
+            [class.active]="tabActivo === 'citas'"
+            class="tab-btn">
+      📅 Citas ({{citas.length}})
+    </button>
+  </div>
+
+  <!-- Contenido del Tab -->
+  <div class="tab-content">
+    
+    <!-- TAB: Información General -->
+    <div *ngIf="tabActivo === 'info'" class="info-grid">
+      <!-- Datos Personales -->
+      <div class="card">
+        <h3>👤 Datos Personales</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Nombre completo</label>
+            <p *ngIf="!editando">{{paciente.nombre}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.nombre" class="form-input">
+          </div>
+          <div class="campo">
+            <label>DNI</label>
+            <p *ngIf="!editando">{{paciente.dni || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.dni" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Fecha de Nacimiento</label>
+            <p *ngIf="!editando">{{paciente.fecha_nacimiento || 'No registrada'}}</p>
+            <input *ngIf="editando" type="date" [(ngModel)]="pacienteEdit.fecha_nacimiento" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Género</label>
+            <p *ngIf="!editando">{{paciente.genero || 'No especificado'}}</p>
+            <select *ngIf="editando" [(ngModel)]="pacienteEdit.genero" class="form-input">
+              <option value="">Seleccionar</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos de Contacto -->
+      <div class="card">
+        <h3>📞 Contacto</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Teléfono</label>
+            <p *ngIf="!editando">{{paciente.telefono}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.telefono" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Email</label>
+            <p *ngIf="!editando">{{paciente.email || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.email" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Dirección</label>
+            <p *ngIf="!editando">{{paciente.direccion || 'No registrada'}}</p>
+            <textarea *ngIf="editando" [(ngModel)]="pacienteEdit.direccion" class="form-input" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información Médica -->
+      <div class="card">
+        <h3>🏥 Información Médica</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Grupo Sanguíneo</label>
+            <p *ngIf="!editando">
+              <span class="badge-info" *ngIf="paciente.grupo_sanguineo">{{paciente.grupo_sanguineo}}</span>
+              <span *ngIf="!paciente.grupo_sanguineo">No registrado</span>
+            </p>
+            <select *ngIf="editando" [(ngModel)]="pacienteEdit.grupo_sanguineo" class="form-input">
+              <option value="Desconocido">Desconocido</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Alergias</label>
+            <p *ngIf="!editando">{{paciente.alergias || 'No registradas'}}</p>
+            <textarea *ngIf="editando" [(ngModel)]="pacienteEdit.alergias" class="form-input" rows="2"></textarea>
+          </div>
+          <div class="campo">
+            <label>Observaciones</label>
+            <p *ngIf="!editando">{{paciente.observaciones || 'Sin observaciones'}}</p>
+            <textarea *ngIf="editando" [(ngModel)]="pacienteEdit.observaciones" class="form-input" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguro Médico -->
+      <div class="card">
+        <h3>📄 Seguro Médico</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Seguro</label>
+            <p *ngIf="!editando">{{paciente.seguro_medico || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.seguro_medico" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Número de Seguro</label>
+            <p *ngIf="!editando">{{paciente.numero_seguro || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.numero_seguro" class="form-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Contacto de Emergencia -->
+      <div class="card">
+        <h3>🚨 Contacto de Emergencia</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Nombre</label>
+            <p *ngIf="!editando">{{paciente.contacto_emergencia || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.contacto_emergencia" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Teléfono</label>
+            <p *ngIf="!editando">{{paciente.telefono_emergencia || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="pacienteEdit.telefono_emergencia" class="form-input">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Historial Médico -->
+    <div *ngIf="tabActivo === 'historial'">
+      <div class="historial-header">
+        <h2>Historial Médico</h2>
+        <button (click)="agregarHistorialMedico()" class="btn-primary">
+          + Agregar Registro
+        </button>
+      </div>
+
+      <div *ngIf="historialMedico.length === 0" class="empty-state">
+        <p class="text-4xl mb-4">🏥</p>
+        <h3>Sin historial médico</h3>
+        <p>No hay registros en el historial médico del paciente</p>
+      </div>
+
+      <div class="historial-list" *ngIf="historialMedico.length > 0">
+        <div *ngFor="let item of historialMedico" class="historial-item">
+          <div class="historial-icon">
+            <span *ngIf="item.tipo === 'alergia'">🤧</span>
+            <span *ngIf="item.tipo === 'enfermedad'">🤒</span>
+            <span *ngIf="item.tipo === 'medicamento'">💊</span>
+            <span *ngIf="item.tipo === 'cirugia'">🏥</span>
+            <span *ngIf="item.tipo === 'habito'">🔄</span>
+            <span *ngIf="item.tipo === 'otro'">📝</span>
+          </div>
+          <div class="historial-content">
+            <div class="historial-header-item">
+              <span class="tipo-badge" [class]="'tipo-' + item.tipo">
+                {{item.tipo | titlecase}}
+              </span>
+              <span class="estado-badge" [class]="'estado-' + item.estado">
+                {{item.estado | titlecase}}
+              </span>
+            </div>
+            <p class="descripcion">{{item.descripcion}}</p>
+            <p class="fecha" *ngIf="item.fecha_diagnostico">
+              📅 {{item.fecha_diagnostico | date:'dd/MM/yyyy'}}
+            </p>
+          </div>
+          <button (click)="eliminarHistorialMedico(item.id)" class="btn-delete" title="Eliminar">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Odontograma -->
+    <div *ngIf="tabActivo === 'odontograma'">
+      <div class="odontograma-container">
+        <div class="odontograma-header">
+          <h2>Odontograma Interactivo</h2>
+          <button (click)="guardarOdontograma()" class="btn-primary">
+            💾 Guardar Odontograma
+          </button>
+        </div>
+
+        <!-- Leyenda mejorada -->
+        <div class="leyenda">
+        <span *ngFor="let estado of estadosDiente" 
+                class="leyenda-item"
+                [class.selected]="modoSeleccion === estado.valor"
+                (click)="seleccionarEstadoModo(estado.valor)">
+            <span class="color-box" [style.background]="estado.color"></span>
+            {{estado.icono}} {{estado.label}}
+        </span>
+        </div>
+
+        <!-- Indicador de modo -->
+        <div *ngIf="modoSeleccion" class="modo-indicator">
+        🎨 Modo: {{modoSeleccion | titlecase}} - Haz clic en los dientes para aplicar
+        <button (click)="modoSeleccion = null" class="btn-cancel">✕ Salir del modo</button>
+        </div>
+
+        <!-- Odontograma -->
+        <div class="odontograma-grid">
+          <!-- Superior -->
+          <div class="dientes-row superior">
+            <span class="quadrant-label">Superior Derecho</span>
+            <div *ngFor="let diente of dientesSuperiores.slice(0, 8).reverse()" 
+                 class="diente"
+                 [style.background]="getColorDiente(diente)"
+                 (click)="seleccionarDiente(diente)">
+              <span class="diente-numero">{{diente}}</span>
+            </div>
+            <div *ngFor="let diente of dientesSuperiores.slice(8, 16)" 
+                 class="diente"
+                 [style.background]="getColorDiente(diente)"
+                 (click)="seleccionarDiente(diente)">
+              <span class="diente-numero">{{diente}}</span>
+            </div>
+            <span class="quadrant-label">Superior Izquierdo</span>
+          </div>
+
+          <!-- Inferior -->
+          <div class="dientes-row inferior">
+            <span class="quadrant-label">Inferior Derecho</span>
+            <div *ngFor="let diente of dientesInferiores.slice(0, 8).reverse()" 
+                 class="diente"
+                 [style.background]="getColorDiente(diente)"
+                 (click)="seleccionarDiente(diente)">
+              <span class="diente-numero">{{diente}}</span>
+            </div>
+            <div *ngFor="let diente of dientesInferiores.slice(8, 16)" 
+                 class="diente"
+                 [style.background]="getColorDiente(diente)"
+                 (click)="seleccionarDiente(diente)">
+              <span class="diente-numero">{{diente}}</span>
+            </div>
+            <span class="quadrant-label">Inferior Izquierdo</span>
+          </div>
+        </div>
+
+        <!-- Modal de edición de diente -->
+        <div *ngIf="dienteSeleccionado" class="modal-overlay" (click)="dienteSeleccionado = null">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>🦷 Diente #{{dienteSeleccionado.numero}}</h3>
+            
+            <div class="form-group">
+              <label>Estado:</label>
+              <select [(ngModel)]="dienteSeleccionado.estado" 
+                      (change)="actualizarDiente()"
+                      class="form-input">
+                <option *ngFor="let estado of estadosDiente" [value]="estado.valor">
+                  {{estado.icono}} {{estado.label}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Cara afectada:</label>
+              <select [(ngModel)]="dienteSeleccionado.cara" 
+                      (change)="actualizarDiente()"
+                      class="form-input">
+                <option value="">Ninguna</option>
+                <option *ngFor="let cara of carasDiente" [value]="cara">
+                  {{cara | titlecase}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Notas:</label>
+              <textarea [(ngModel)]="dienteSeleccionado.notas" 
+                        (change)="actualizarDiente()"
+                        class="form-input" 
+                        rows="3"
+                        placeholder="Observaciones..."></textarea>
+            </div>
+
+            <button (click)="dienteSeleccionado = null" class="btn-primary">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Citas -->
+    <div *ngIf="tabActivo === 'citas'">
+      <h2>Historial de Citas y Tratamientos</h2>
+      
+      <div *ngIf="citas.length === 0" class="empty-state">
+        <p class="text-4xl mb-4">📅</p>
+        <h3>Sin citas registradas</h3>
+        <p>El paciente no tiene citas en el sistema</p>
+        <button routerLink="/citas/nueva" class="btn-primary mt-4">
+          + Agendar Cita
+        </button>
+      </div>
+
+      <div class="citas-list" *ngIf="citas.length > 0">
+        <div *ngFor="let cita of citas" class="cita-card">
+          <div class="cita-header">
+            <div class="cita-fecha">
+              <span class="fecha-dia">{{cita.fecha | date:'dd'}}</span>
+              <span class="fecha-mes">{{cita.fecha | date:'MMM'}}</span>
+            </div>
+            <div class="cita-info">
+              <h4>{{cita.tratamiento?.nombre}}</h4>
+              <p class="cita-hora">⏰ {{cita.hora | slice:0:5}}</p>
+            </div>
+            <span class="estado-cita" [class]="getEstadoCitaClass(cita.estado)">
+              {{cita.estado | titlecase}}
+            </span>
+          </div>
+          <div class="cita-body" *ngIf="cita.notas">
+            <p>{{cita.notas}}</p>
+          </div>
+          <div class="cita-footer">
+            <span>💰 S/ {{cita.tratamiento?.precio}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!paciente" class="loading">
+  <p>Cargando información del paciente...</p>
+</div>

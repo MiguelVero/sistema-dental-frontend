@@ -1,0 +1,210 @@
+<div class="detalle-container" *ngIf="producto">
+  <!-- Header -->
+  <div class="detalle-header">
+    <div class="header-left">
+      <a routerLink="/inventario" class="back-btn">← Volver</a>
+      <div class="producto-header-info">
+        <div class="stock-indicator-grande" [class]="getStockClass()">
+          <span class="stock-icon">
+            <span *ngIf="producto.stock_actual <= 0">❌</span>
+            <span *ngIf="producto.stock_actual > 0 && producto.stock_actual <= producto.stock_minimo">⚠️</span>
+            <span *ngIf="producto.stock_actual > producto.stock_minimo">✅</span>
+          </span>
+        </div>
+        <div>
+          <div class="header-top">
+            <span class="codigo" *ngIf="producto.codigo">{{producto.codigo}}</span>
+            <span class="stock-badge" [class]="getStockClass()">{{getStockLabel()}}</span>
+          </div>
+          <h1>{{producto.nombre}}</h1>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button (click)="toggleEdicion()" class="btn-secondary">
+        {{editando ? 'Cancelar' : '✏️ Editar'}}
+      </button>
+      <button *ngIf="editando" (click)="guardarEdicion()" class="btn-primary">
+        💾 Guardar
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de stock -->
+  <div class="stock-bar-container">
+    <div class="stock-bar">
+      <div class="stock-fill" [style.width.%]="getPorcentajeStock()" [class]="getStockClass()"></div>
+    </div>
+    <div class="stock-info">
+      <span>{{producto.stock_actual}} / {{producto.stock_maximo || '∞'}} {{producto.unidad}}</span>
+      <span>Mín: {{producto.stock_minimo}}</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button (click)="cambiarTab('info')" [class.active]="tabActivo === 'info'" class="tab-btn">
+      📋 Información
+    </button>
+    <button (click)="cambiarTab('movimientos')" [class.active]="tabActivo === 'movimientos'" class="tab-btn">
+      📊 Movimientos ({{movimientos.length}})
+    </button>
+  </div>
+
+  <!-- Tab: Información -->
+  <div *ngIf="tabActivo === 'info'" class="tab-content">
+    <div class="info-grid-dos">
+      <!-- Datos del producto -->
+      <div class="card">
+        <h3>📦 Datos del Producto</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Nombre</label>
+            <p *ngIf="!editando">{{producto.nombre}}</p>
+            <input *ngIf="editando" [(ngModel)]="productoEdit.nombre" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Código</label>
+            <p *ngIf="!editando">{{producto.codigo || 'Sin código'}}</p>
+            <input *ngIf="editando" [(ngModel)]="productoEdit.codigo" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Categoría</label>
+            <p *ngIf="!editando">{{producto.categoria?.nombre || 'Sin categoría'}}</p>
+            <select *ngIf="editando" [(ngModel)]="productoEdit.categoria_id" class="form-input">
+              <option value="">Sin categoría</option>
+              <option *ngFor="let cat of categorias" [value]="cat.id">{{cat.nombre}}</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Descripción</label>
+            <p *ngIf="!editando">{{producto.descripcion || 'Sin descripción'}}</p>
+            <textarea *ngIf="editando" [(ngModel)]="productoEdit.descripcion" class="form-input" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock y precios -->
+      <div class="card">
+        <h3>📊 Stock y Precios</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Stock Actual</label>
+            <p class="text-xl font-bold" [class.text-red-600]="producto.stock_actual <= producto.stock_minimo">
+              {{producto.stock_actual}} {{producto.unidad}}
+            </p>
+          </div>
+          <div class="campo">
+            <label>Stock Mínimo</label>
+            <p *ngIf="!editando">{{producto.stock_minimo}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="productoEdit.stock_minimo" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Stock Máximo</label>
+            <p *ngIf="!editando">{{producto.stock_maximo || 'No definido'}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="productoEdit.stock_maximo" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Unidad</label>
+            <p *ngIf="!editando">{{producto.unidad}}</p>
+            <input *ngIf="editando" [(ngModel)]="productoEdit.unidad" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Precio Compra</label>
+            <p *ngIf="!editando">S/ {{producto.precio_compra}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="productoEdit.precio_compra" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Precio Venta</label>
+            <p *ngIf="!editando">S/ {{producto.precio_venta}}</p>
+            <input *ngIf="editando" type="number" [(ngModel)]="productoEdit.precio_venta" class="form-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Proveedor y ubicación -->
+      <div class="card">
+        <h3>🏢 Proveedor y Ubicación</h3>
+        <div class="info-campos">
+          <div class="campo">
+            <label>Proveedor</label>
+            <p *ngIf="!editando">{{producto.proveedor || 'No registrado'}}</p>
+            <input *ngIf="editando" [(ngModel)]="productoEdit.proveedor" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Ubicación</label>
+            <p *ngIf="!editando">{{producto.ubicacion || 'No registrada'}}</p>
+            <input *ngIf="editando" [(ngModel)]="productoEdit.ubicacion" class="form-input">
+          </div>
+          <div class="campo">
+            <label>Fecha de Vencimiento</label>
+            <p *ngIf="!editando">{{producto.fecha_vencimiento || 'No registrada'}}</p>
+            <input *ngIf="editando" type="date" [(ngModel)]="productoEdit.fecha_vencimiento" class="form-input">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Movimientos -->
+  <div *ngIf="tabActivo === 'movimientos'" class="tab-content">
+    <!-- Registro rápido -->
+    <div class="movimiento-rapido">
+      <div class="card">
+        <h3>📝 Registrar Movimiento</h3>
+        <div class="movimiento-form">
+          <div class="form-row">
+            <input type="number" [(ngModel)]="cantidadMovimiento" 
+                   placeholder="Cantidad" min="1" class="form-input" style="width: 120px;">
+            <input type="text" [(ngModel)]="motivoMovimiento" 
+                   placeholder="Motivo (opcional)" class="form-input" style="flex: 1;">
+          </div>
+          <div class="form-actions">
+            <button (click)="registrarEntrada()" class="btn-entrada-grande">
+              📥 Registrar Entrada
+            </button>
+            <button (click)="registrarSalida()" class="btn-salida-grande">
+              📤 Registrar Salida
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de movimientos -->
+    <div class="card">
+      <h3>📊 Historial de Movimientos</h3>
+      
+      <div *ngIf="movimientos.length === 0" class="empty-state">
+        <p>No hay movimientos registrados</p>
+      </div>
+
+      <div class="movimientos-list" *ngIf="movimientos.length > 0">
+        <div *ngFor="let mov of movimientos" class="movimiento-item" [class]="getTipoMovimientoClass(mov.tipo)">
+          <div class="movimiento-icon">
+            {{getTipoMovimientoIcono(mov.tipo)}}
+          </div>
+          <div class="movimiento-info">
+            <div class="movimiento-header">
+              <span class="mov-tipo">{{mov.tipo | titlecase}}</span>
+              <span class="mov-cantidad" [class]="mov.tipo === 'entrada' ? 'text-green' : 'text-red'">
+                {{mov.tipo === 'entrada' ? '+' : '-'}}{{mov.cantidad}}
+              </span>
+            </div>
+            <p class="mov-motivo" *ngIf="mov.motivo">{{mov.motivo}}</p>
+            <div class="mov-detalle">
+              <span>Stock: {{mov.stock_anterior}} → {{mov.stock_nuevo}}</span>
+              <span *ngIf="mov.usuario">👤 {{mov.usuario.nombre}}</span>
+            </div>
+            <span class="mov-fecha">{{formatoFecha(mov.createdAt)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!producto" class="loading">
+  <p>Cargando producto...</p>
+</div>

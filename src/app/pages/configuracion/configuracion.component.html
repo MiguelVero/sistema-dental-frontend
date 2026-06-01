@@ -1,0 +1,117 @@
+<div class="container">
+  <h1>⚙️ Configuración del Sistema</h1>
+
+  <div class="tabs">
+    <button (click)="cambiarTab('usuarios')" [class.active]="tabActivo === 'usuarios'" class="tab-btn">👤 Usuarios</button>
+    <button (click)="cambiarTab('bitacora')" [class.active]="tabActivo === 'bitacora'" class="tab-btn">📝 Bitácora</button>
+    <button (click)="cambiarTab('general')" [class.active]="tabActivo === 'general'" class="tab-btn">⚙️ General</button>
+  </div>
+
+  <!-- TAB: USUARIOS -->
+  <div *ngIf="tabActivo === 'usuarios'" class="tab-content">
+    <div class="header-actions">
+      <button (click)="nuevoUsuario()" class="btn-primary">+ Nuevo Usuario</button>
+    </div>
+    <div class="usuarios-list">
+      <div *ngFor="let usuario of usuarios" class="usuario-card" [class.inactivo]="!usuario.activo">
+        <div class="usuario-avatar">{{usuario.nombre.charAt(0).toUpperCase()}}</div>
+        <div class="usuario-info">
+          <strong>{{usuario.nombre}}</strong>
+          <span class="usuario-email">{{usuario.email}}</span>
+          <span class="usuario-rol">{{usuario.rol | titlecase}}</span>
+        </div>
+        <div class="usuario-estado">
+          <span [class.activo-badge]="usuario.activo" [class.inactivo-badge]="!usuario.activo">{{usuario.activo ? 'Activo' : 'Inactivo'}}</span>
+          <span class="ultimo-acceso" *ngIf="usuario.ultimo_acceso">Último: {{usuario.ultimo_acceso | date:'dd/MM/yyyy HH:mm'}}</span>
+        </div>
+        <button (click)="editarUsuario(usuario)" class="btn-editar" title="Editar">✏️</button>
+        <button (click)="toggleUsuario(usuario)" class="btn-toggle">{{usuario.activo ? '❌ Desactivar' : '✅ Activar'}}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: BITÁCORA -->
+  <div *ngIf="tabActivo === 'bitacora'" class="tab-content">
+    <div class="filtros-bitacora">
+      <select [(ngModel)]="filtroUsuario" (change)="paginaBitacora = 1; cargarBitacora()" class="form-input filtro-select">
+        <option value="">Todos los usuarios</option>
+        <option *ngFor="let u of usuariosFiltro" [value]="u.id">{{u.nombre}}</option>
+      </select>
+      
+      <select [(ngModel)]="filtroModulo" (change)="paginaBitacora = 1; cargarBitacora()" class="form-input filtro-select">
+        <option value="">Todos los módulos</option>
+        <option *ngFor="let m of modulosFiltro" [value]="m">{{m}}</option>
+      </select>
+      
+      <input type="date" [(ngModel)]="filtroDesde" (change)="paginaBitacora = 1; cargarBitacora()" class="form-input filtro-fecha" title="Desde">
+      <input type="date" [(ngModel)]="filtroHasta" (change)="paginaBitacora = 1; cargarBitacora()" class="form-input filtro-fecha" title="Hasta">
+      
+      <label class="checkbox-filtro">
+        <input type="checkbox" [(ngModel)]="sinLogin" (change)="paginaBitacora = 1; cargarBitacora()">
+        <span>Ocultar inicios de sesión</span>
+      </label>
+      
+      <button (click)="limpiarFiltros()" class="btn-limpiar" title="Limpiar filtros">✕ Limpiar</button>
+    </div>
+
+    <p class="bitacora-total">{{totalRegistrosBitacora}} registros encontrados</p>
+
+    <div *ngIf="registrosBitacora.length === 0" class="empty-state">
+      <p>No hay registros en la bitácora con estos filtros</p>
+    </div>
+
+    <div class="bitacora-list" *ngIf="registrosBitacora.length > 0">
+      <div *ngFor="let registro of registrosBitacora" class="bitacora-item">
+        <span class="bitacora-icon">
+          <span *ngIf="registro.accion.includes('crear')">➕</span>
+          <span *ngIf="registro.accion.includes('actualizar')">✏️</span>
+          <span *ngIf="registro.accion.includes('eliminar') || registro.accion.includes('cancelar')">🗑️</span>
+          <span *ngIf="registro.accion.includes('inicio')">🔑</span>
+          <span *ngIf="registro.accion.includes('entrada')">📥</span>
+          <span *ngIf="registro.accion.includes('salida')">📤</span>
+        </span>
+        <div class="bitacora-info">
+          <strong>{{registro.accion}}</strong>
+          <span class="bitacora-modulo">{{registro.modulo}}</span>
+          <span class="bitacora-desc">{{registro.descripcion}}</span>
+        </div>
+        <div class="bitacora-meta">
+          <span>{{registro.usuario?.nombre || 'Sistema'}}</span>
+          <span>{{registro.createdAt | date:'dd/MM/yyyy HH:mm:ss'}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="totalPaginasBitacora > 1" class="pagination">
+      <button (click)="cambiarPaginaBitacora(paginaBitacora - 1)" [disabled]="paginaBitacora === 1" class="page-btn">Anterior</button>
+      <span class="page-info">Pág. {{paginaBitacora}} de {{totalPaginasBitacora}}</span>
+      <button (click)="cambiarPaginaBitacora(paginaBitacora + 1)" [disabled]="paginaBitacora === totalPaginasBitacora" class="page-btn">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- TAB: CONFIGURACIÓN GENERAL -->
+  <div *ngIf="tabActivo === 'general'" class="tab-content">
+    <div class="config-grid">
+      <div class="config-card">
+        <h3>🏥 Datos de la Clínica</h3>
+        <div class="form-group"><label>Nombre</label><input [(ngModel)]="config.nombre_clinica" class="form-input"></div>
+        <div class="form-group"><label>Dirección</label><input [(ngModel)]="config.direccion_clinica" class="form-input"></div>
+        <div class="form-group"><label>Teléfono</label><input [(ngModel)]="config.telefono_clinica" class="form-input"></div>
+      </div>
+      <div class="config-card">
+        <h3>⏰ Horario de Atención</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Hora Inicio</label><input type="time" [(ngModel)]="config.hora_inicio" class="form-input"></div>
+          <div class="form-group"><label>Hora Fin</label><input type="time" [(ngModel)]="config.hora_fin" class="form-input"></div>
+        </div>
+        <div class="form-group"><label>Intervalo entre citas (minutos)</label><input type="number" [(ngModel)]="config.intervalo_citas" class="form-input"></div>
+      </div>
+      <div class="config-card">
+        <h3>💰 Impuestos y Moneda</h3>
+        <div class="form-group"><label>Impuesto (%)</label><input type="number" [(ngModel)]="config.impuesto" class="form-input"></div>
+        <div class="form-group"><label>Símbolo de Moneda</label><input [(ngModel)]="config.moneda" class="form-input"></div>
+      </div>
+    </div>
+    <button (click)="guardarConfiguracion()" class="btn-primary btn-guardar">💾 Guardar Configuración</button>
+  </div>
+</div>

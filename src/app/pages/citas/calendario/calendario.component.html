@@ -1,0 +1,126 @@
+<div class="calendario-container">
+  <!-- Header -->
+  <div class="calendario-header">
+    <div class="header-left">
+      <button (click)="irHoy()" class="btn-hoy">Hoy</button>
+      <button (click)="cambiarFecha(-1)" class="btn-nav">◀</button>
+      <button (click)="cambiarFecha(1)" class="btn-nav">▶</button>
+      <h2>{{tituloCalendario}}</h2>
+    </div>
+    <div class="header-right">
+      <button (click)="cambiarVista('dia')" [class.active]="vistaActual === 'dia'" class="btn-vista">Día</button>
+      <button (click)="cambiarVista('semana')" [class.active]="vistaActual === 'semana'" class="btn-vista">Semana</button>
+      <button (click)="cambiarVista('mes')" [class.active]="vistaActual === 'mes'" class="btn-vista">Mes</button>
+      <button routerLink="/citas/nueva" class="btn-nueva">+ Nueva Cita</button>
+    </div>
+  </div>
+
+  <!-- VISTA DÍA -->
+  <div *ngIf="vistaActual === 'dia'" class="vista-dia">
+    <div *ngFor="let hora of horasDia" class="hora-row" (click)="abrirModalCita(fechaActual, hora)">
+      <span class="hora-label">{{hora}}</span>
+      <div class="hora-citas">
+        <div *ngFor="let cita of getCitasParaHoraCache(fechaActual, hora)" 
+             class="cita-chip"
+             [style.background]="getEstadoColor(cita.estado)"
+             (click)="$event.stopPropagation()">
+          <strong>{{cita.hora | slice:0:5}}</strong> {{cita.paciente?.nombre}}
+          <small>{{cita.tratamiento?.nombre}}</small>
+        </div>
+        <span class="btn-agregar">+</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA SEMANA -->
+  <div *ngIf="vistaActual === 'semana'" class="vista-semana">
+    <div class="semana-header">
+      <div class="hora-vacia"></div>
+      <div *ngFor="let fecha of fechasSemana" class="dia-header" 
+           [class.hoy]="mismaFecha(fecha, fechaActual)">
+        <span class="dia-nombre">{{getDiaSemana(fecha)}}</span>
+        <span class="dia-numero">{{fecha.getDate()}}</span>
+      </div>
+    </div>
+    <div class="semana-body">
+      <div *ngFor="let hora of horasDia" class="hora-row-semana">
+        <span class="hora-label">{{hora}}</span>
+        <div *ngFor="let fecha of fechasSemana" class="hora-celda"
+             (click)="abrirModalCita(fecha, hora)">
+          <div *ngFor="let cita of getCitasParaHoraCache(fecha, hora)" 
+               class="cita-mini"
+               [style.background]="getEstadoColor(cita.estado)"
+               (click)="$event.stopPropagation()"
+               [title]="cita.paciente?.nombre + ' - ' + cita.tratamiento?.nombre + ' (' + cita.hora?.slice(0,5) + ')'">
+            {{cita.paciente?.nombre?.charAt(0)}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MES -->
+  <div *ngIf="vistaActual === 'mes'" class="vista-mes">
+    <div class="mes-header">
+      <span *ngFor="let dia of diasMesNombres" class="dia-nombre-mes">{{dia}}</span>
+    </div>
+    <div *ngFor="let semana of semanasDelMes" class="semana-row">
+      <div *ngFor="let dia of semana" class="dia-celda" 
+           [class.otro-mes]="!dia.esMesActual"
+           [class.hoy]="dia.esHoy"
+           (click)="dia.esMesActual && abrirModalCita(dia.fecha)">
+        <span class="dia-num">{{dia.dia}}</span>
+        <span *ngIf="dia.citasCount > 0" class="cita-count">{{dia.citasCount}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE NUEVA CITA -->
+<div *ngIf="mostrarModalCita" class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal-cita" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📅 Nueva Cita</h3>
+      <button (click)="cerrarModal()" class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Paciente *</label>
+        <select [(ngModel)]="nuevaCita.paciente_id" class="form-input">
+          <option [ngValue]="null" disabled>Seleccionar paciente</option>
+          <option *ngFor="let p of pacientes" [ngValue]="p.id">{{p.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tratamiento *</label>
+        <select [(ngModel)]="nuevaCita.tratamiento_id" class="form-input">
+          <option [ngValue]="null" disabled>Seleccionar tratamiento</option>
+          <option *ngFor="let t of tratamientos" [ngValue]="t.id">{{t.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Odontólogo</label>
+        <select [(ngModel)]="nuevaCita.odontologo_id" class="form-input">
+          <option [ngValue]="null">Sin asignar</option>
+          <option *ngFor="let o of odontologos" [ngValue]="o.id">{{o.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevaCita.fecha" class="form-input">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevaCita.hora" class="form-input">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="guardarCitaDesdeCalendario()" class="btn-primary" [disabled]="guardando">
+        {{guardando ? 'Guardando...' : '💾 Guardar Cita'}}
+      </button>
+      <button (click)="cerrarModal()" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>

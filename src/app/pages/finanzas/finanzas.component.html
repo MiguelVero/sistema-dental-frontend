@@ -1,0 +1,134 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>💰 Gestión Financiera</h1>
+    <div class="header-actions">
+      <button (click)="nuevoIngreso()" class="btn-ingreso">+ Ingreso</button>
+      <button (click)="nuevoEgreso()" class="btn-egreso">- Egreso</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button (click)="cambiarTab('ingresos')" [class.active]="tabActivo === 'ingresos'" class="tab-btn">
+      📈 Ingresos
+    </button>
+    <button (click)="cambiarTab('egresos')" [class.active]="tabActivo === 'egresos'" class="tab-btn">
+      📉 Egresos
+    </button>
+    <button (click)="cambiarTab('flujo-caja')" [class.active]="tabActivo === 'flujo-caja'" class="tab-btn">
+      💵 Flujo de Caja
+    </button>
+  </div>
+
+  <!-- Filtros de fecha -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Desde:</label>
+      <input type="date" [(ngModel)]="fechaDesde" (change)="actualizarFiltros()" class="filter-input">
+    </div>
+    <div class="filter-group">
+      <label>Hasta:</label>
+      <input type="date" [(ngModel)]="fechaHasta" (change)="actualizarFiltros()" class="filter-input">
+    </div>
+  </div>
+
+  <!-- TAB: INGRESOS -->
+  <div *ngIf="tabActivo === 'ingresos'" class="tab-content">
+    <div class="resumen-card">
+      <span class="resumen-label">Total Ingresos</span>
+      <span class="resumen-valor text-green">S/ {{totalIngresos.toFixed(2)}}</span>
+    </div>
+
+    <div *ngIf="ingresos.length === 0" class="empty-state">
+      <p class="text-3xl mb-4">💰</p>
+      <h3>Sin ingresos en este período</h3>
+    </div>
+
+    <div class="listado" *ngIf="ingresos.length > 0">
+      <div *ngFor="let ingreso of ingresos" class="item-card ingreso-card">
+        <div class="item-left">
+          <span class="item-metodo">{{getMetodoPagoLabel(ingreso.metodo_pago)}}</span>
+          <h4>{{ingreso.descripcion}}</h4>
+          <p class="item-paciente" *ngIf="ingreso.paciente">👤 {{ingreso.paciente.nombre}}</p>
+          <p class="item-tratamiento" *ngIf="ingreso.tratamiento">🦷 {{ingreso.tratamiento.nombre}}</p>
+        </div>
+        <div class="item-right">
+          <span class="item-monto positvo">+ S/ {{ingreso.monto}}</span>
+          <span class="item-fecha">{{ingreso.fecha | date:'dd/MM/yyyy'}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: EGRESOS -->
+  <div *ngIf="tabActivo === 'egresos'" class="tab-content">
+    <div class="resumen-card">
+      <span class="resumen-label">Total Egresos</span>
+      <span class="resumen-valor text-red">S/ {{totalEgresos.toFixed(2)}}</span>
+    </div>
+
+    <div *ngIf="egresos.length === 0" class="empty-state">
+      <p class="text-3xl mb-4">💸</p>
+      <h3>Sin egresos en este período</h3>
+    </div>
+
+    <div class="listado" *ngIf="egresos.length > 0">
+      <div *ngFor="let egreso of egresos" class="item-card egreso-card">
+        <div class="item-left">
+          <span class="item-categoria" *ngIf="egreso.categoria">{{egreso.categoria.nombre}}</span>
+          <h4>{{egreso.descripcion}}</h4>
+          <p class="item-notas" *ngIf="egreso.notas">{{egreso.notas}}</p>
+        </div>
+        <div class="item-right">
+          <span class="item-monto negativo">- S/ {{egreso.monto}}</span>
+          <span class="item-fecha">{{egreso.fecha | date:'dd/MM/yyyy'}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: FLUJO DE CAJA -->
+  <div *ngIf="tabActivo === 'flujo-caja'" class="tab-content">
+    <div class="flujo-grid" *ngIf="flujoCaja">
+      <div class="flujo-card bg-green-light">
+        <span class="flujo-label">Ingresos</span>
+        <span class="flujo-valor text-green">S/ {{flujoCaja.totalIngresos.toFixed(2)}}</span>
+      </div>
+      <div class="flujo-card bg-red-light">
+        <span class="flujo-label">Egresos</span>
+        <span class="flujo-valor text-red">S/ {{flujoCaja.totalEgresos.toFixed(2)}}</span>
+      </div>
+      <div class="flujo-card" [class.bg-green-light]="flujoCaja.flujoCaja >= 0" [class.bg-red-light]="flujoCaja.flujoCaja < 0">
+        <span class="flujo-label">Flujo de Caja</span>
+        <span class="flujo-valor" [class]="getFlujoClass(flujoCaja.flujoCaja)">
+          S/ {{flujoCaja.flujoCaja.toFixed(2)}}
+        </span>
+      </div>
+    </div>
+
+    <div class="flujo-detalle" *ngIf="flujoCaja">
+      <div class="card">
+        <h3>📊 Egresos por Categoría</h3>
+        <div class="categorias-list" *ngIf="flujoCaja.egresosPorCategoria?.length > 0">
+          <div *ngFor="let cat of flujoCaja.egresosPorCategoria" class="categoria-row">
+            <span>{{cat.categoria?.nombre || 'Sin categoría'}}</span>
+            <span class="text-red">S/ {{cat.total}}</span>
+          </div>
+        </div>
+        <p *ngIf="!flujoCaja.egresosPorCategoria?.length" class="text-gray">Sin datos</p>
+      </div>
+      
+      <div class="card">
+        <h3>💳 Ingresos por Método</h3>
+        <div class="metodos-list" *ngIf="flujoCaja.ingresosPorMetodo?.length > 0">
+          <div *ngFor="let met of flujoCaja.ingresosPorMetodo" class="metodo-row">
+            <span>{{getMetodoPagoLabel(met.metodo_pago)}}</span>
+            <span class="text-green">S/ {{met.total}}</span>
+          </div>
+        </div>
+        <p *ngIf="!flujoCaja.ingresosPorMetodo?.length" class="text-gray">Sin datos</p>
+      </div>
+    </div>
+  </div>
+</div>

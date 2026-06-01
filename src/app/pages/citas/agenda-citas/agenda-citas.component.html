@@ -1,0 +1,190 @@
+<div class="agenda-container">
+  <!-- Header -->
+  <div class="agenda-header">
+    <div class="header-left">
+      <button (click)="irHoy()" class="btn-hoy">Hoy</button>
+      <button (click)="vistaActual === 'mes' ? cambiarMes(-1) : cambiarSemana(-1)" class="btn-nav">◀</button>
+      <button (click)="vistaActual === 'mes' ? cambiarMes(1) : cambiarSemana(1)" class="btn-nav">▶</button>
+      <h2>{{tituloCalendario}}</h2>
+    </div>
+    <div class="header-center">
+      <button (click)="cambiarVista('dia')" [class.active]="vistaActual === 'dia'" class="btn-vista">Día</button>
+      <button (click)="cambiarVista('semana')" [class.active]="vistaActual === 'semana'" class="btn-vista">Semana</button>
+      <button (click)="cambiarVista('mes')" [class.active]="vistaActual === 'mes'" class="btn-vista">Mes</button>
+    </div>
+    <div class="header-right">
+      <button (click)="enviarRecordatoriosMasivos()" class="btn-recordatorio">📱 Enviar recordatorios</button>
+    </div>
+  </div>
+
+  <!-- Filtros de estado -->
+  <div class="filtros-estado">
+    <button (click)="estadoFiltro = 'todos'; organizarCitas()" 
+            [class.active]="estadoFiltro === 'todos'" class="filtro-btn">
+      Todos <span class="count">{{contarCitasPorEstado('todos')}}</span>
+    </button>
+    <button (click)="estadoFiltro = 'pendiente'; organizarCitas()" 
+            [class.active]="estadoFiltro === 'pendiente'" class="filtro-btn filtro-pendiente">
+      ⏳ Pendientes <span class="count">{{contarCitasPorEstado('pendiente')}}</span>
+    </button>
+    <button (click)="estadoFiltro = 'confirmada'; organizarCitas()" 
+            [class.active]="estadoFiltro === 'confirmada'" class="filtro-btn filtro-confirmada">
+      ✅ Confirmadas <span class="count">{{contarCitasPorEstado('confirmada')}}</span>
+    </button>
+    <button (click)="estadoFiltro = 'completada'; organizarCitas()" 
+            [class.active]="estadoFiltro === 'completada'" class="filtro-btn filtro-completada">
+      ✔️ Atendidas <span class="count">{{contarCitasPorEstado('completada')}}</span>
+    </button>
+    <button (click)="estadoFiltro = 'cancelada'; organizarCitas()" 
+            [class.active]="estadoFiltro === 'cancelada'" class="filtro-btn filtro-cancelada">
+      ❌ Canceladas <span class="count">{{contarCitasPorEstado('cancelada')}}</span>
+    </button>
+  </div>
+
+  <!-- VISTA DÍA / SEMANA -->
+  <div *ngIf="vistaActual === 'dia' || vistaActual === 'semana'" class="agenda-semana">
+    <div class="semana-header">
+      <div class="hora-vacia"></div>
+      <div *ngFor="let fecha of (vistaActual === 'dia' ? [fechaActual] : fechasSemana)" 
+           class="dia-header" [class.hoy]="esHoy(fecha)">
+        <span class="dia-nombre">{{getDiaSemana(fecha)}}</span>
+        <span class="dia-numero">{{fecha.getDate()}}</span>
+      </div>
+    </div>
+
+    <div class="semana-body">
+      <div *ngFor="let hora of horasDia" class="hora-row">
+        <span class="hora-label">{{hora}}</span>
+        <div *ngFor="let fecha of (vistaActual === 'dia' ? [fechaActual] : fechasSemana)" 
+             class="hora-celda"
+             (click)="abrirModalNueva(fecha, hora)">
+          <div *ngFor="let cita of getCitasParaCelda(fecha, hora)"
+               class="cita-chip"
+               [style.background]="getEstadoColor(cita.estado)"
+               (click)="abrirDetalleCita(cita, $event)">
+            <span class="cita-estado-icono">{{getEstadoIcono(cita.estado)}}</span>
+            <span class="cita-paciente">{{cita.paciente?.nombre}}</span>
+            <span class="cita-tratamiento">{{cita.tratamiento?.nombre}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MES -->
+  <div *ngIf="vistaActual === 'mes'" class="vista-mes">
+    <div class="mes-header">
+      <span *ngFor="let dia of diasMesNombres" class="dia-nombre-mes">{{dia}}</span>
+    </div>
+    <div *ngFor="let semana of semanasDelMes" class="semana-row">
+      <div *ngFor="let dia of semana" class="dia-celda" 
+           [class.otro-mes]="!dia.esMesActual"
+           [class.hoy]="dia.esHoy"
+           (click)="dia.esMesActual && abrirModalDesdeMes(dia.fecha)">
+        <span class="dia-num">{{dia.dia}}</span>
+        <span *ngIf="dia.citasCount > 0" class="cita-count">{{dia.citasCount}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Cita -->
+<div *ngIf="mostrarModalNueva" class="modal-overlay" (click)="mostrarModalNueva = false">
+  <div class="modal-cita" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📅 Nueva Cita</h3>
+      <button (click)="mostrarModalNueva = false" class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Paciente *</label>
+        <select [(ngModel)]="nuevaCita.paciente_id" class="form-input">
+          <option [ngValue]="null" disabled>Seleccionar paciente</option>
+          <option *ngFor="let p of pacientes" [ngValue]="p.id">{{p.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tratamiento *</label>
+        <select [(ngModel)]="nuevaCita.tratamiento_id" class="form-input">
+          <option [ngValue]="null" disabled>Seleccionar tratamiento</option>
+          <option *ngFor="let t of tratamientos" [ngValue]="t.id">{{t.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Odontólogo</label>
+        <select [(ngModel)]="nuevaCita.odontologo_id" class="form-input">
+          <option [ngValue]="null">Sin asignar</option>
+          <option *ngFor="let o of odontologos" [ngValue]="o.id">{{o.nombre}}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="nuevaCita.fecha" class="form-input">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>Hora</label>
+          <input type="time" [(ngModel)]="nuevaCita.hora" class="form-input">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="guardarNuevaCita()" class="btn-primary">💾 Guardar Cita</button>
+      <button (click)="mostrarModalNueva = false" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Detalle de Cita -->
+<div *ngIf="mostrarModalDetalle && citaSeleccionada" class="modal-overlay" (click)="cerrarDetalle()">
+  <div class="modal-detalle" (click)="$event.stopPropagation()">
+    <div class="detalle-estados">
+      <button (click)="cambiarEstadoCita('confirmada')" 
+              [class.active]="citaSeleccionada.estado === 'confirmada'"
+              class="estado-btn confirmar">✅ Confirmar</button>
+      <button (click)="cambiarEstadoCita('cancelada')" 
+              [class.active]="citaSeleccionada.estado === 'cancelada'"
+              class="estado-btn cancelar">❌ Cancelar</button>
+      <button (click)="cambiarEstadoCita('completada')" 
+              [class.active]="citaSeleccionada.estado === 'completada'"
+              class="estado-btn completar">✔️ Atendida</button>
+      <div class="estado-mas">
+        <button (click)="mostrarSelectorEstado = !mostrarSelectorEstado" class="estado-btn mas">▼</button>
+        <div *ngIf="mostrarSelectorEstado" class="estado-dropdown">
+          <button (click)="cambiarEstadoCita('pendiente')" class="dropdown-item">⏳ Pendiente</button>
+        </div>
+      </div>
+    </div>
+
+<!-- Después de detalle-estados y antes de detalle-info -->
+<div class="detalle-metodo" *ngIf="citaSeleccionada.estado === 'pendiente' || citaSeleccionada.estado === 'confirmada'">
+  <label style="font-size:0.65rem;color:#6b7280;font-weight:600;">METODO DE PAGO AL ATENDER</label>
+  <select [(ngModel)]="metodoPagoSeleccionado" class="form-input" style="margin-top:0.2rem;">
+    <option value="efectivo">💵 Efectivo</option>
+    <option value="tarjeta">💳 Tarjeta</option>
+    <option value="transferencia">🏦 Transferencia</option>
+    <option value="otro">📋 Otro</option>
+  </select>
+</div>
+
+    <div class="detalle-info">
+      <div class="info-paciente" (click)="verPaciente()">
+        <div class="avatar" [style.background]="getEstadoColor(citaSeleccionada.estado)">
+          {{citaSeleccionada.paciente?.nombre?.charAt(0) || '?'}}
+        </div>
+        <div>
+          <strong>{{citaSeleccionada.paciente?.nombre || 'Sin nombre'}}</strong>
+          <p class="cita-horario">{{citaSeleccionada.fecha | date:'dd/MM'}} - {{citaSeleccionada.hora | slice:0:5}}</p>
+        </div>
+      </div>
+      <p class="info-motivo"><strong>Motivo:</strong> {{citaSeleccionada.tratamiento?.nombre || 'Sin tratamiento'}}</p>
+      <p class="info-telefono" *ngIf="citaSeleccionada.paciente?.telefono">📱 {{citaSeleccionada.paciente?.telefono}}</p>
+    </div>
+
+    <div class="detalle-acciones">
+      <button class="accion-btn" (click)="enviarWhatsApp()">📱 Enviar WhatsApp</button>
+      <button class="accion-btn" (click)="verPaciente()">👤 Datos del paciente</button>
+      <button class="accion-btn eliminar" (click)="eliminarCita()">🗑️ Eliminar cita</button>
+    </div>
+  </div>
+</div>

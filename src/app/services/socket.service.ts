@@ -8,7 +8,11 @@ export class SocketService {
   private socket: Socket;
 
   constructor() {
-    this.socket = io(environment.apiUrl);
+    // Conectar al backend (sin /api)
+    const backendUrl = environment.apiUrl.replace('/api', '');
+    this.socket = io(backendUrl, {
+      transports: ['websocket', 'polling']
+    });
   }
 
   onRecordatoriosEnviados(): Observable<any> {
@@ -23,7 +27,31 @@ export class SocketService {
     });
   }
 
-  disconnect() {
-    this.socket.disconnect();
+  // Escuchar notificaciones en tiempo real
+  onNuevaNotificacion(): Observable<any> {
+    return new Observable(observer => {
+      this.socket.on('nueva_notificacion', (data) => {
+        console.log('🔔 Nueva notificación recibida:', data);
+        observer.next(data);
+      });
+    });
   }
+
+// Escuchar eliminación de notificaciones
+onEliminarNotificacion(): Observable<any> {
+  return new Observable(observer => {
+    this.socket.on('eliminar_notificacion', (data) => {
+      console.log('🗑️ Notificación eliminada:', data);
+      observer.next(data);
+    });
+  });
+}
+
+  disconnect() {
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+  }
+
+
 }
